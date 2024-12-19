@@ -1,0 +1,713 @@
+1)
+import java.util.*;
+public class Main
+{
+  static int calculate(int arr[])
+  {
+    int tr=0;
+    for(int i=0;i<arr.length;i++)
+    {
+      int max=arr[i],min=arr[i];
+      for(int j=i;j<arr.length;j++)
+      {
+        max=Math.max(max,arr[j]);
+        min=Math.min(min,arr[j]);
+        tr+=(max-min);
+      }
+    }
+    return tr;
+  }
+  public static void main(String[] args)
+  {
+      Scanner sc=new Scanner(System.in);
+      String[] s=sc.nextLine().split(" ");
+      int arr[]=new int[s.length];
+      for(int i=0;i<arr.length;i++)
+      {
+        arr[i]=Integer.parseInt(s[i]);
+      }
+      System.out.println(calculate(arr));
+  }
+} 
+
+--
+import java.io.*;
+import java.util.*;
+class Main {
+    public static int[] nextGreaterElements(int[] nums) {
+        int n = nums.length;
+        int nge[] = new int[n];
+        Stack < Integer > st = new Stack < > ();
+        for (int i = n - 1; i >= 0; i--) {
+            while (st.isEmpty() == false && nums[st.peek()] <= nums[i]) {
+                st.pop();
+            }
+            nge[i] = st.isEmpty() ? n : st.peek();
+            st.push(i);
+        }
+        return nge;
+    }
+    
+    public static int[] nextSmallestElements(int[] nums) {
+        int n = nums.length;
+        int nse[] = new int[n];
+        Stack < Integer > st = new Stack < > ();
+        for (int i = n - 1; i >= 0; i--) {
+            while (st.isEmpty() == false && nums[st.peek()] >= nums[i]) {
+                st.pop();
+            }
+            nse[i] = st.isEmpty() ? n : st.peek();
+            st.push(i);
+        }
+        return nse;
+    }
+    public static int[] preSmallestElements(int[] nums) {
+        int n = nums.length;
+        int pse[] = new int[n];
+        Stack < Integer > st = new Stack < > ();
+        for (int i = 0; i<n; i++) {
+            while (st.isEmpty() == false && nums[st.peek()] > nums[i]) {
+                st.pop();
+            }
+            pse[i] = st.isEmpty() ? -1 : st.peek();
+            st.push(i);
+        }
+        return pse;
+    }
+    public static int[] preGreaterElements(int[] nums) {
+        int n = nums.length;
+        int pge[] = new int[n];
+        Stack<Integer> st = new Stack<>();
+        for (int i = 0; i < n; i++) {
+            while (!st.isEmpty() && nums[st.peek()] < nums[i]) {
+                st.pop();
+            }
+            pge[i] = st.isEmpty() ? -1 : st.peek();
+            st.push(i);
+        }
+        return pge;
+    }
+    public static long sum(int[] arr)
+    {
+         int pse[]=preSmallestElements(arr);
+         int nse[]=nextSmallestElements(arr);
+         int pge[]=preGreaterElements(arr);
+         int nge[]=nextGreaterElements(arr);
+         long total = 0,total1=0, mod = (int)(1e9 + 7);
+          long left, right,left1,right1; // Use long to handle the multiplication properly
+          int n = arr.length;
+          for (int i = 0; i < n; i++) {
+              left = i - pse[i];
+              right = nse[i] - i;
+              total = (total + (right * left * 1L * arr[i]));
+              left1 = i - pge[i];
+            right1 = nge[i] - i;
+            total1 = (total1 + (right1 * left1 * 1L * arr[i]));
+
+          }
+         return total1-total;
+    }
+    public static void main(String args[]) {
+      Scanner sc=new Scanner(System.in);
+      int[] arr = Arrays.stream(sc.nextLine().split(" ")).mapToInt(Integer::parseInt).toArray();
+      System.out.print(sum(arr));
+      
+    }
+}
+
+
+--------------------------------------------------------
+2)
+import java.util.*;
+
+public class ReplaceNonCoprime {
+
+    // Helper method to calculate the GCD (Greatest Common Divisor)
+    private static int gcd(int a, int b) {
+        // Edge cases for zero
+        if (a == 0) {
+            return b;
+        }
+        if (b == 0) {
+            return a;
+        }
+        // Euclidean algorithm to find the GCD
+        while (b != 0) {
+            int temp = b;
+            b = a % b;
+            a = temp;
+        }
+        return a;
+    }
+
+    // Helper method to calculate the LCM (Least Common Multiple)
+    private static int lcm(int a, int b) {
+        if (a == 0 || b == 0) {
+            return 0; // LCM with zero is defined as zero
+        }
+        // Using LCM formula: LCM(a, b) = (a * b) / GCD(a, b)
+        return (int) ((long) a / gcd(a, b) * b); // Use long to prevent overflow
+    }
+
+    // Method to replace adjacent non-coprime numbers in the array with their LCM
+    public static List<Integer> replaceNonCoprime(int[] nums) {
+        if (nums == null || nums.length == 0) {
+            throw new IllegalArgumentException("Input array must not be null or empty.");
+        }
+
+        // Stack to store the current state of the array while merging adjacent non-coprime numbers
+        Stack<Integer> stack = new Stack<>();
+
+        for (int num : nums) {
+            if (num <= 0) {
+                throw new IllegalArgumentException("All numbers must be positive.");
+            }
+
+            // Process the current number and merge it with previous numbers if they are non-coprime
+            while (!stack.isEmpty() && gcd(stack.peek(), num) > 1) {
+                num = lcm(stack.pop(), num);  // Replace the non-coprime pair with their LCM
+            }
+            stack.push(num);  // Push the current number (or merged number) onto the stack
+        }
+
+        // Return the final result as a List of integers
+        return new ArrayList<>(stack);
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        String input = scanner.nextLine();  // Read the input string
+
+        // Split the input string into individual number strings
+        String[] parts = input.split(" ");
+        if (parts.length == 0) {
+            throw new IllegalArgumentException("Input array must not be empty.");
+        }
+
+        // Convert the input string array to an integer array
+        int[] nums = new int[parts.length];
+        for (int i = 0; i < parts.length; i++) {
+            nums[i] = Integer.parseInt(parts[i]);
+        }
+
+        // Process the array and print the result
+        List<Integer> result = replaceNonCoprime(nums);
+        for (int num : result) {
+            System.out.print(num + " ");
+        }
+        System.out.println();
+    }
+}
+________________________________________________________________________________________
+3)
+
+import java.util.*;
+class Solution {
+    // TC : O(n)
+    // SC : O(n)
+    public static int totalStrength(int[] strength) {
+        // Edge case: Empty array
+        if (strength.length == 0) {
+            return 0;
+        }
+
+        int n = strength.length;
+        int MOD = 1_000_000_007;
+
+        long[] preSum = new long[n + 1];
+        long[] prePrefix = new long[n + 2];
+
+        for (int i = 0; i < n; i++) {
+            preSum[i + 1] = (preSum[i] + strength[i]) % MOD;
+        }
+        for (int i = 0; i <= n; i++) {
+            prePrefix[i + 1] = (prePrefix[i] + preSum[i]) % MOD;
+        }
+
+        int[] left = new int[n];
+        Stack<Integer> stack = new Stack<Integer>();
+        for (int i = 0; i < strength.length; i++) {
+            while (!stack.isEmpty() && strength[i] <= strength[stack.peek()]) {
+                stack.pop();
+            }
+            left[i] = stack.isEmpty() ? -1 : stack.peek();
+            stack.push(i);
+        }
+
+        int[] right = new int[n];
+        stack = new Stack<Integer>();
+        for (int i = strength.length - 1; i >= 0 ; i--) {
+            while (!stack.isEmpty() && strength[i] < strength[stack.peek()]) {
+                stack.pop();
+            }
+            right[i] = stack.isEmpty() ? n : stack.peek();
+            stack.push(i);
+        }
+
+        long ans = 0;
+        for (int i = 0; i < n; i++) {
+            ans += ((prePrefix[right[i] + 1] - prePrefix[i + 1]) * (i - left[i]) % MOD + MOD - (prePrefix[i + 1] - prePrefix[left[i] + 1]) * (right[i] - i) % MOD) * strength[i];
+            ans %= MOD;
+        }
+        return (int)((ans + MOD) % MOD); // Ensures non-negative result
+    }
+
+    public static void main(String[] args) {
+        // Reading input
+        Scanner sc = new Scanner(System.in);
+        String input = sc.nextLine();
+        String[] strArr = input.split(" ");
+        
+        // Converting the input to an integer array
+        int[] strength = new int[strArr.length];
+        for (int i = 0; i < strArr.length; i++) {
+            strength[i] = Integer.parseInt(strArr[i]);
+        }
+        
+        // Calling the function to compute the total strength
+        System.out.println(totalStrength(strength));
+    }
+}
+___________________________________________________________________________________________
+4)
+import java.util.*;
+
+class Solution {
+
+    public static int valid(int[] nums, int threshold) {
+        int n = nums.length;
+
+        // Iterate over possible subarray lengths k
+        for (int k = 1; k <= n; k++) {
+            double minValue = (double) threshold / k;
+            Stack<Integer> stack = new Stack<>();
+
+            // Initialize invalid count
+            int invalidCount = 0;
+
+            for (int i = 0; i < n; i++) {
+                if (nums[i] <= minValue) {
+                    invalidCount++;
+                }
+                stack.push(i);
+
+                if (i >= k - 1) {
+                    if (invalidCount == 0) {
+                        return k;
+                    }
+
+                    int start = stack.pop();
+                    invalidCount--;
+                }
+            }
+        }
+
+        // If no valid subarray is found return -1
+        return -1;
+    }
+
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        
+        // Reading input array
+        String input = sc.nextLine();
+        String[] strArr = input.split(" ");
+        
+        // Convert the input into an integer array
+        int[] nums = new int[strArr.length];
+        for (int i = 0; i < strArr.length; i++) {
+            nums[i] = Integer.parseInt(strArr[i]);
+        }
+        
+        // Read the threshold
+        int threshold = sc.nextInt();
+        
+        // Calling the function to compute the valid subarray size
+        System.out.println(valid(nums, threshold));
+    }
+}
+-------------------------------------------------------------------------------------------
+5)
+import java.util.*;
+
+public class Solution {
+    public int[] secondGreaterElement(int[] A) {
+        int n = A.length;
+        
+        // Initialize the 'middle' list where each element will be a stack of indices
+        List<List<Integer>> middle = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            middle.add(new ArrayList<>());
+        }
+        
+        // 'st' will be used for finding the first greater element
+        Stack<Integer> st = new Stack<>();
+        
+        // First pass: Find all first greater elements and store their indices in 'middle'
+        for (int i = 0; i < n; i++) {
+            while (!st.isEmpty() && A[st.peek()] < A[i]) {
+                middle.get(i).add(st.pop());  // If A[i] is greater than A[st.peek()], add st.peek() to middle[i]
+            }
+            st.push(i);  // Push current index onto the stack
+        }
+        
+        // Initialize the result array with -1
+        int[] result = new int[n];
+        Arrays.fill(result, -1);
+        
+        // Min-heap to store potential second greater elements
+        PriorityQueue<int[]> heap = new PriorityQueue<>(Comparator.comparingInt(a -> a[0]));  // Min-heap (value, index)
+        
+        // Second pass: Find the second greater element using the heap
+        for (int i = 0; i < n; i++) {
+            // For each element in 'middle[i]', find the second greater element using the heap.
+            while (!heap.isEmpty() && heap.peek()[0] < A[i]) {
+                result[heap.poll()[1]] = A[i];  // If A[i] is greater than the top of the heap, update the answer
+            }
+            
+            // Push the indices from 'middle[i]' to the heap to track second greater elements.
+            for (int index : middle.get(i)) {
+                heap.offer(new int[]{A[index], index});  // Push (A[index], index) to heap to track potential second greater elements
+            }
+        }
+        
+        return result;
+    }
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+        Scanner sc = new Scanner(System.in);
+        
+        // Read input
+        String input = sc.nextLine();
+        String[] parts = input.split(" ");
+        int[] A = new int[parts.length];
+        
+        for (int i = 0; i < parts.length; i++) {
+            A[i] = Integer.parseInt(parts[i]);
+        }
+
+        // Get the result
+        int[] result = solution.secondGreaterElement(A);
+        
+        // Print the result
+        for (int num : result) {
+            System.out.print(num + " ");
+        }
+        System.out.println();
+    }
+}
+___________________________________________________________________________________________
+6)
+import java.util.*;
+
+public class Solution {
+    public static int minimumLengthAfterRemovingSubstrings(String s) {
+        // Stack to process the characters
+        Stack<Character> stack = new Stack<>();
+        
+        // Iterate over the string
+        for (int i = 0; i < s.length(); i++) {
+            char currentChar = s.charAt(i);
+            
+            // Push the current character to the stack
+            stack.push(currentChar);
+            
+            // Check the last two characters in the stack
+            if (stack.size() >= 2) {
+                char secondLast = stack.get(stack.size() - 2);
+                char last = stack.peek();
+                
+                // If the last two characters are "AB" or "CD", pop them from the stack
+                if ((secondLast == 'A' && last == 'B') || (secondLast == 'C' && last == 'D')) {
+                    stack.pop(); // Remove the last character
+                    stack.pop(); // Remove the second last character
+                }
+            }
+        }
+        
+        // The remaining characters in the stack represent the reduced string
+        return stack.size(); // Return the length of the reduced string
+    }
+
+    public static void main(String[] args) {
+      Scanner sc=new Scanner(System.in);
+        // Input string
+        String input = sc.nextLine();
+        
+        // Output the result
+        System.out.println(minimumLengthAfterRemovingSubstrings(input)); // Expected output: 2
+    }
+}
+___________________________________________________________________________________________7)
+
+import java.util.*;
+
+class Solution {
+    public static long collectChocolates(int[] nums, int x) {
+        int n = nums.length;
+        int[][] f = new int[n][n];
+        for (int i = 0; i < n; ++i) {
+            f[i][0] = nums[i];
+            for (int j = 1; j < n; ++j) {
+                f[i][j] = Math.min(f[i][j - 1], nums[(i - j + n) % n]);
+            }
+        }
+        long ans = 1L << 60;
+        for (int j = 0; j < n; ++j) {
+            long cost = 1L * x * j;
+            for (int i = 0; i < n; ++i) {
+                cost += f[i][j];
+            }
+            ans = Math.min(ans, cost);
+        }
+        return ans;
+    }
+    
+    // Main function to test the solution
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        
+        // Read the input
+        String[] s = sc.nextLine().split(" ");
+        int n = s.length;
+        int[] nums = new int[n];
+        
+        for (int i = 0; i < n; i++) {
+            nums[i] = Integer.parseInt(s[i]);
+        }
+        
+        int x = sc.nextInt();
+        
+        // Output the result
+        System.out.println(collectChocolates(nums, x));  // Output the minimum cost
+    }
+}
+__________________________________________________________________________________________
+8)
+import java.util.*;
+
+class BinaryIndexedTree {
+    private int n;
+    private int[] c;
+
+    public BinaryIndexedTree(int n) {
+        this.n = n;
+        c = new int[n + 1];
+        Arrays.fill(c, -1);
+    }
+
+    public void update(int x, int v) {
+        while (x <= n) {
+            c[x] = Math.max(c[x], v);
+            x += x & -x;
+        }
+    }
+
+    public int query(int x) {
+        int mx = -1;
+        while (x > 0) {
+            mx = Math.max(mx, c[x]);
+            x -= x & -x;
+        }
+        return mx;
+    }
+}
+
+class Solution {
+    public int[] maximumSumQueries(int[] nums1, int[] nums2, int[][] queries) {
+        int n = nums1.length;
+        int[][] nums = new int[n][0];
+        for (int i = 0; i < n; ++i) {
+            nums[i] = new int[] {nums1[i], nums2[i]};
+        }
+        Arrays.sort(nums, (a, b) -> b[0] - a[0]);
+        Arrays.sort(nums2);
+        int m = queries.length;
+        Integer[] idx = new Integer[m];
+        for (int i = 0; i < m; ++i) {
+            idx[i] = i;
+        }
+        Arrays.sort(idx, (i, j) -> queries[j][0] - queries[i][0]);
+        int[] ans = new int[m];
+        int j = 0;
+        BinaryIndexedTree tree = new BinaryIndexedTree(n);
+        for (int i : idx) {
+            int x = queries[i][0], y = queries[i][1];
+            for (; j < n && nums[j][0] >= x; ++j) {
+                int k = n - Arrays.binarySearch(nums2, nums[j][1]);
+                tree.update(k, nums[j][0] + nums[j][1]);
+            }
+            int p = Arrays.binarySearch(nums2, y);
+            int k = p >= 0 ? n - p : n + p + 1;
+            ans[i] = tree.query(k);
+        }
+        return ans;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        // Read input for nums1 and nums2
+        String[] s1 = sc.nextLine().split(" ");
+        String[] s2 = sc.nextLine().split(" ");
+
+        int n = s1.length;
+        int[] nums1 = new int[n];
+        int[] nums2 = new int[n];
+        for (int i = 0; i < n; i++) {
+            nums1[i] = Integer.parseInt(s1[i]);
+            nums2[i] = Integer.parseInt(s2[i]);
+        }
+
+        // Read queries
+        int q = sc.nextInt();
+        int[][] queries = new int[q][2];
+        for (int i = 0; i < q; i++) {
+            queries[i][0] = sc.nextInt();
+            queries[i][1] = sc.nextInt();
+        }
+
+        // Get the result
+        Solution solution = new Solution();
+        int[] result = solution.maximumSumQueries(nums1, nums2, queries);
+
+        // Output the result
+        for (int res : result) {
+            System.out.print(res + " ");
+        }
+        System.out.println();
+    }
+}
+__________________________________________________________________________________________
+9)
+import java.util.*;
+class Solution {
+    public static long maximumSumOfHeights(List<Integer> maxHeights) {
+        int n = maxHeights.size();
+        Deque<Integer> stk = new ArrayDeque<>();
+        int[] left = new int[n];
+        int[] right = new int[n];
+        Arrays.fill(left, -1);
+        Arrays.fill(right, n);
+        for (int i = 0; i < n; ++i) {
+            int x = maxHeights.get(i);
+            while (!stk.isEmpty() && maxHeights.get(stk.peek()) > x) {
+                stk.pop();
+            }
+            if (!stk.isEmpty()) {
+                left[i] = stk.peek();
+            }
+            stk.push(i);
+        }
+        stk.clear();
+        for (int i = n - 1; i >= 0; --i) {
+            int x = maxHeights.get(i);
+            while (!stk.isEmpty() && maxHeights.get(stk.peek()) >= x) {
+                stk.pop();
+            }
+            if (!stk.isEmpty()) {
+                right[i] = stk.peek();
+            }
+            stk.push(i);
+        }
+        long[] f = new long[n];
+        long[] g = new long[n];
+        for (int i = 0; i < n; ++i) {
+            int x = maxHeights.get(i);
+            if (i > 0 && x >= maxHeights.get(i - 1)) {
+                f[i] = f[i - 1] + x;
+            } else {
+                int j = left[i];
+                f[i] = 1L * x * (i - j) + (j >= 0 ? f[j] : 0);
+            }
+        }
+        for (int i = n - 1; i >= 0; --i) {
+            int x = maxHeights.get(i);
+            if (i < n - 1 && x >= maxHeights.get(i + 1)) {
+                g[i] = g[i + 1] + x;
+            } else {
+                int j = right[i];
+                g[i] = 1L * x * (j - i) + (j < n ? g[j] : 0);
+            }
+        }
+        long ans = 0;
+        for (int i = 0; i < n; ++i) {
+            ans = Math.max(ans, f[i] + g[i] - maxHeights.get(i));
+        }
+        return ans;
+    }
+    public static void main(String[] args)
+    {
+      Scanner sc=new Scanner(System.in);
+      String s[]=sc.nextLine().split(" ");
+      int n=s.length;
+      List<Integer> arr=new LinkedList<>();
+      for(int i=0;i<n;i++)
+      {
+        arr.add(Integer.parseInt(s[i]));
+      }
+    System.out.println(maximumSumOfHeights(arr));
+    }
+}
+--------------------------------------------------------------------------------------
+10)
+import java.util.*;
+
+public class Solution {
+    public List<Integer> lastVisitedIntegers(int[] nums) {
+        List<Integer> seen = new LinkedList<>();  // Stack-like structure (using LinkedList for efficient prepend)
+        List<Integer> ans = new ArrayList<>();    // To store the result for each `-1`
+        
+        int consecutiveMinusOnes = 0;  // To track consecutive `-1`s encountered
+        
+        for (int num : nums) {
+            if (num == -1) {
+                consecutiveMinusOnes++;
+                // If the number of consecutive -1s is <= size of seen list, take the k-th last element from seen
+                if (consecutiveMinusOnes <= seen.size()) {
+                    ans.add(seen.get(consecutiveMinusOnes - 1));
+                } else {
+                    ans.add(-1);  // If not enough elements in seen, append -1
+                }
+            } else {
+                // Reset consecutive -1 count and add the positive integer to the front of seen
+                consecutiveMinusOnes = 0;
+                seen.add(0, num);  // Prepend num to the seen list (adding at the front)
+            }
+        }
+        
+        return ans;
+    }
+
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+        
+        // Test Input
+        Scanner sc = new Scanner(System.in);
+        String[] input = sc.nextLine().split(" ");
+        
+        // Convert input into integer array
+        int[] nums = new int[input.length];
+        for (int i = 0; i < input.length; i++) {
+            if (input[i].equals("prev")) {
+                nums[i] = -1;
+            } else {
+                nums[i] = Integer.parseInt(input[i]);
+            }
+        }
+
+        // Call the function
+        List<Integer> result = solution.lastVisitedIntegers(nums);
+        
+        // Print the result
+        for (int res : result) {
+            System.out.print(res + " ");
+        }
+        System.out.println();
+    }
+}
+-------------------------------------------------------------------------------------------
